@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#050d1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PJ IPTV">
+<meta name="description" content="PJ Tecnologia e Sistemas — Player IPTV Pro">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBKIElQVFYgUHJvIiwgInNob3J0X25hbWUiOiAiUEogSVBUViIsICJkZXNjcmlwdGlvbiI6ICJQbGF5ZXIgSVBUViBQcm8gXHUyMDE0IFBKIFRlY25vbG9naWEgZSBTaXN0ZW1hcyIsICJzdGFydF91cmwiOiAiLi8iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiIzA1MGQxYSIsICJ0aGVtZV9jb2xvciI6ICIjMDUwZDFhIiwgIm9yaWVudGF0aW9uIjogImFueSIsICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDE5MiAxOTInJTNFJTNDcmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5MicgZmlsbD0nJTIzMDUwZDFhJy8lM0UlM0Nwb2x5Z29uIHBvaW50cz0nOTYlMkM4IDE4NCUyQzU0IDE4NCUyQzEzOCA5NiUyQzE4NCA4JTJDMTM4IDglMkM1NCcgZmlsbD0nJTIzMGQzODc4JyBzdHJva2U9JyUyMzAwZWFmZicgc3Ryb2tlLXdpZHRoPSc0Jy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PScxMTUnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZvbnQtZmFtaWx5PSdBcmlhbCBCbGFjaycgZm9udC1zaXplPSc1MicgZm9udC13ZWlnaHQ9JzkwMCcgZmlsbD0nd2hpdGUnJTNFUEolM0MlMkZ0ZXh0JTNFJTNDJTJGc3ZnJTNFIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn1dfQ==">
+<title>PJ IPTV Pro — PJ Tecnologia e Sistemas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════
+   PJ TECNOLOGIA — IPTV PRO
+   Design System
+═══════════════════════════ */
+:root {
+  --navy:      #050d1a;
+  --blue1:     #0a1f3d;
+  --blue2:     #0d3878;
+  --cyan:      #00c8f8;
+  --cyan2:     #00eaff;
+  --silver:    #c8d8f0;
+  --white:     #eef4ff;
+  --accent:    #f0a500;
+  --surface:   #081224;
+  --card:      #0c1a30;
+  --card2:     #101f38;
+  --border:    rgba(0,200,248,0.12);
+  --border2:   rgba(0,200,248,0.06);
+  --muted:     #3a5278;
+  --sub:       #6888aa;
+  --green:     #22c55e;
+  --yellow:    #f59e0b;
+  --red:       #ef4444;
+  --glow:      rgba(0,200,248,0.15);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ── Background grid ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,200,248,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,248,.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ══════════════════════════════
+   SPLASH / SETUP SCREEN
+══════════════════════════════ */
+#setupScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--navy);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Garante que o próprio elemento seja scrollável no iOS */
+  height: 100%;
+  height: 100dvh;
+}
+
+/* wrapper — lado a lado em telas largas, empilhado em mobile */
+.setup-inner {
+  min-height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 40px 60px;
+  gap: 48px;
+  box-sizing: border-box;
+}
+
+/* Mobile portrait: empilha — logo acima, menor */
+@media (max-width: 700px) {
+  .setup-inner {
+    flex-direction: column;
+    padding: 36px 16px 80px;
+    gap: 20px;
+  }
+  .splash-logo {
+    order: 0;
+  }
+  .splash-hex {
+    width: 72px;
+    height: 79px;
+    margin-bottom: 8px;
+  }
+  .splash-hex .mono {
+    font-size: 1.3rem;
+  }
+  .splash-brand {
+    font-size: .85rem;
+  }
+  .splash-sub {
+    font-size: .62rem;
+  }
+  .splash-product {
+    margin-top: 6px;
+    font-size: .55rem;
+  }
+}
+
+/* Telas muito baixas */
+@media (max-height: 580px) {
+  .setup-inner {
+    gap: 24px;
+    padding-top: 20px;
+    padding-bottom: 40px;
+  }
+}
+
+.splash-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeUp .8s .05s cubic-bezier(.22,1,.36,1) both;
+  flex-shrink: 0;
+  order: 2;
+  min-width: 160px;
+}
+
+.splash-hex {
+  position: relative;
+  width: 110px;
+  height: 121px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.splash-hex svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 14px rgba(0,200,248,.5));
+  animation: hexPulse 3s ease-in-out infinite;
+}
+.splash-hex .mono {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: var(--white);
+  text-shadow: 0 0 20px rgba(0,234,255,.7);
+  position: relative;
+  z-index: 2;
+}
+.splash-hex .mono span { color: var(--cyan2); }
+
+.splash-brand {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--white);
+  text-align: center;
+}
+.splash-brand .pj { color: var(--cyan2); }
+.splash-brand .sep { color: rgba(0,200,248,.3); margin: 0 3px; }
+
+.splash-sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .7rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: .6;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.splash-product {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: .8;
+  margin-top: 10px;
+  padding: 4px 14px;
+  border: 1px solid rgba(240,165,0,.3);
+  border-radius: 20px;
+}
+
+/* Setup card */
+.setup-card {
+  width: 100%;
+  max-width: 440px;
+  order: 1;
+  background: linear-gradient(145deg, var(--card) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px 28px;
+  box-shadow: 0 0 0 1px var(--border2), 0 24px 60px rgba(0,0,0,.6);
+  position: relative;
+  animation: fadeUp .8s .1s cubic-bezier(.22,1,.36,1) both;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.setup-card::before, .setup-card::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  border-style: solid;
+  border-color: var(--cyan);
+}
+.setup-card::before { top: 12px; left: 12px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+.setup-card::after  { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+
+.scanline {
+  position: absolute;
+  left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,248,.15), transparent);
+  pointer-events: none;
+  animation: scan 6s linear infinite;
+  z-index: 1;
+}
+@keyframes scan { 0%{ top:-2px } 100%{ top:100% } }
+
+.card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+}
+
+.field-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--sub);
+  margin-bottom: 6px;
+}
+
+.field-input {
+  width: 100%;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--white);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .88rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  margin-bottom: 12px;
+}
+.field-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,200,248,.08);
+}
+.field-input::placeholder { color: var(--muted); }
+
+.load-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue2), #0a5ab0);
+  border: 1px solid rgba(0,200,248,.25);
+  color: var(--white);
+  font-family: 'Orbitron', sans-serif;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 20px rgba(0,56,120,.4);
+  position: relative;
+  overflow: hidden;
+}
+.load-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,200,248,.15), transparent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.load-btn:hover::before { opacity: 1; }
+.load-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,56,120,.6); }
+.load-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+.progress-wrap { margin-top: 10px; display: none; }
+.progress-bg { height: 3px; background: var(--card2); border-radius: 2px; overflow: hidden; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue2), var(--cyan));
+  width: 0%;
+  transition: width .3s;
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--cyan);
+}
+.progress-txt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--sub);
+  margin-top: 5px;
+}
+
+.setup-error {
+  background: rgba(239,68,68,.08);
+  border: 1px solid rgba(239,68,68,.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: .78rem;
+  color: #fca5a5;
+  margin-top: 8px;
+  display: none;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.setup-note {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .72rem;
+  color: var(--muted);
+  margin-top: 12px;
+  line-height: 1.6;
+  letter-spacing: .3px;
+}
+.setup-note strong { color: var(--sub); }
+
+/* Demo button */
+.demo-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--sub);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.demo-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* ══════════════════════════════
+   MAIN APP
+══════════════════════════════ */
+#mainUI {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 52px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--card) 0%, var(--surface) 100%);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.topbar-hex {
+  width: 28px;
+  height: 31px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.topbar-hex svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 6px rgba(0,200,248,.4));
+}
+.topbar-hex .tmono {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  font-weight: 900;
+  color: var(--white);
+  position: relative;
+  z-index: 2;
+  letter-spacing: -1px;
+}
+.topbar-hex .tmono span { color: var(--cyan2); }
+.topbar-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+  line-height: 1.3;
+}
+.topbar-name .pjtag { color: var(--cyan2); display: block; }
+.topbar-name .apptag {
+  color: var(--accent);
+  font-size: .5rem;
+  letter-spacing: 2.5px;
+  opacity: .8;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 280px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  transition: border-color .2s;
+}
+.search-bar:focus-within { border-color: rgba(0,200,248,.4); }
+.search-bar svg { color: var(--muted); flex-shrink: 0; }
+.search-bar input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .85rem;
+  width: 100%;
+  letter-spacing: .5px;
+}
+.search-bar input::placeholder { color: var(--muted); }
+
+.status-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.status-badge.online { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+.status-badge.offline { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.25); }
+.sdot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+
+.count-txt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: var(--navy);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--sub);
+  transition: all .15s;
+}
+.icon-btn:hover { color: var(--cyan); border-color: rgba(0,200,248,.35); }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* ── CONTENT LAYOUT ── */
+.content { flex: 1; display: flex; overflow: hidden; }
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width: 240px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+
+@media (max-width: 768px) {
+  .left-panel { width: 200px; }
+  .right-panel { display: none !important; }
+  .topbar-name { display: none; }
+}
+@media (max-width: 560px) {
+  .left-panel { display: none; }
+  .mobile-ch-btn {
+    display: flex !important;
+  }
+}
+
+.cat-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--card);
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.ctab {
+  padding: 10px 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.ctab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.ctab:hover { color: var(--sub); }
+
+.ch-list { flex: 1; overflow-y: auto; padding: 4px 0; }
+.ch-list::-webkit-scrollbar { width: 2px; }
+.ch-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+.ch-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.ch-item:hover { background: rgba(0,200,248,.04); }
+.ch-item.active { background: rgba(0,200,248,.07); }
+.ch-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--cyan2), var(--blue2));
+  border-radius: 0 2px 2px 0;
+}
+
+.ch-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .55rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.ch-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+.ch-info { flex: 1; min-width: 0; }
+.ch-name {
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: .3px;
+}
+.ch-cat {
+  font-size: .65rem;
+  color: var(--muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: .5px;
+}
+
+.live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  flex-shrink: 0;
+  box-shadow: 0 0 4px var(--cyan);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.4 } }
+
+/* ── CENTER PANEL ── */
+.center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Player */
+.player-wrap {
+  position: relative;
+  background: #000;
+  flex-shrink: 0;
+}
+video {
+  width: 100%;
+  display: block;
+  background: #000;
+  max-height: 55vh;
+}
+
+.player-idle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #050d1a, #0a1f3d);
+  gap: 8px;
+}
+.idle-hex {
+  width: 56px;
+  height: 62px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.idle-hex svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .35;
+}
+.idle-hex .imono {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--sub);
+  position: relative;
+  z-index: 2;
+  letter-spacing: -1px;
+}
+.idle-hex .imono span { color: var(--muted); }
+.idle-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+.idle-status {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .8rem;
+  color: var(--muted);
+  letter-spacing: .5px;
+}
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(0,200,248,.15);
+  border-top-color: var(--cyan);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  display: none;
+}
+@keyframes spin { to{ transform:rotate(360deg) } }
+
+/* Spinner inline no botão de carregar */
+.btn-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Player overlay controls */
+.player-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(to top, rgba(5,13,26,.95) 0%, rgba(5,13,26,.4) 40%, transparent 70%);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.player-wrap:hover .player-overlay { opacity: 1; }
+.player-controls { padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 7px; }
+
+.progress-row { display: flex; align-items: center; gap: 8px; }
+.prog-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,.15);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue2), var(--cyan));
+  border-radius: 2px;
+  width: 0%;
+  pointer-events: none;
+  box-shadow: 0 0 6px var(--cyan);
+}
+.time-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: rgba(255,255,255,.6);
+  white-space: nowrap;
+}
+
+.ctrl-row { display: flex; align-items: center; gap: 6px; }
+.cbtn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px;
+  opacity: .8;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cbtn:hover { opacity: 1; transform: scale(1.15); }
+.cbtn svg { width: 18px; height: 18px; }
+.cbtn.big svg { width: 24px; height: 24px; }
+
+.ch-num {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--blue2), #0a5ab0);
+  color: var(--white);
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(0,200,248,.2);
+}
+.qual-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  background: rgba(0,200,248,.1);
+  border: 1px solid rgba(0,200,248,.2);
+  color: var(--cyan);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.vol-wrap { display: flex; align-items: center; gap: 5px; }
+.vol-slider {
+  width: 60px;
+  height: 3px;
+  accent-color: var(--cyan);
+  background: rgba(255,255,255,.15);
+  border-radius: 2px;
+  cursor: pointer;
+  appearance: none;
+}
+.spacer { flex: 1; }
+
+/* EPG */
+.epg-strip {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.epg-strip::-webkit-scrollbar { height: 2px; }
+.epg-strip::-webkit-scrollbar-thumb { background: var(--border); }
+.epg-card {
+  flex-shrink: 0;
+  min-width: 120px;
+  background: var(--card);
+  border-radius: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+}
+.epg-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--muted);
+}
+.epg-title { font-size: .75rem; font-weight: 600; margin-top: 2px; letter-spacing: .3px; }
+
+/* Filter chips */
+.filter-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.filter-row::-webkit-scrollbar { display: none; }
+.fchip {
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--sub);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .2s;
+}
+.fchip:hover { color: var(--cyan); border-color: rgba(0,200,248,.3); }
+.fchip.active { background: var(--blue2); border-color: rgba(0,200,248,.3); color: var(--white); box-shadow: 0 0 10px rgba(0,56,120,.4); }
+
+/* Channel grid */
+.ch-grid-wrap { flex: 1; overflow-y: auto; padding: 12px; background: var(--navy); }
+.ch-grid-wrap::-webkit-scrollbar { width: 2px; }
+.ch-grid-wrap::-webkit-scrollbar-thumb { background: var(--border); }
+
+.grid-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.grid-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sub);
+  white-space: nowrap;
+}
+.grid-line { flex: 1; height: 1px; background: var(--border); }
+
+.ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 7px; }
+.grid-card {
+  background: var(--card);
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.grid-card:hover { border-color: rgba(0,200,248,.3); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+.grid-card.active { border-color: rgba(0,200,248,.4); background: rgba(0,200,248,.05); }
+.grid-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .55rem;
+  font-weight: 700;
+  margin: 0 auto 6px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.grid-logo img { width: 100%; height: 100%; object-fit: contain; }
+.grid-name {
+  font-size: .65rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: .3px;
+}
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 200px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.right-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+.right-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--sub);
+}
+.right-content { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+.info-block { background: var(--card); border-radius: 8px; padding: 10px; border: 1px solid var(--border); }
+.info-label { font-family: 'JetBrains Mono', monospace; font-size: .55rem; color: var(--muted); letter-spacing: 1.5px; margin-bottom: 5px; text-transform: uppercase; }
+.info-val { font-family: 'Rajdhani', sans-serif; font-size: .85rem; font-weight: 600; color: var(--white); letter-spacing: .3px; }
+.info-val.cyan { color: var(--cyan); }
+.info-val.accent { color: var(--accent); }
+.info-val.green { color: var(--green); }
+
+/* Branding in right panel */
+.panel-brand {
+  margin-top: auto;
+  padding: 12px;
+  text-align: center;
+}
+.pb-divider { height: 1px; background: var(--border); margin-bottom: 10px; }
+.pb-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: .5rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.pb-name .pc { color: var(--cyan2); }
+.pb-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .6rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  opacity: .5;
+  margin-top: 3px;
+}
+
+/* ── STATUS BAR ── */
+.status-bar {
+  border-top: 1px solid var(--border);
+  padding: 5px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  background: var(--card);
+}
+.sdot2 { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.sdot2.green { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.sdot2.yellow { background: var(--yellow); animation: pulse 2s infinite; }
+.sdot2.red { background: var(--red); }
+.sb-logo {
+  margin-left: auto;
+  font-family: 'Orbitron', sans-serif;
+  font-size: .5rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  opacity: .5;
+}
+.sb-logo span { color: var(--cyan); opacity: .7; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 8px;
+  color: var(--muted);
+}
+.empty-state svg { width: 32px; height: 32px; opacity: .3; }
+.empty-state p { font-size: .8rem; }
+
+/* ── MOBILE CHANNEL DRAWER ── */
+.mobile-ch-btn {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  right: 16px;
+  z-index: 50;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue2), #0a5ab0);
+  border: 1px solid rgba(0,200,248,.3);
+  color: var(--white);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 20px rgba(0,56,120,.4);
+  align-items: center;
+  justify-content: center;
+}
+.mobile-ch-btn svg { width: 20px; height: 20px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes hexPulse {
+  0%,100% { filter: drop-shadow(0 0 10px rgba(0,200,248,.4)); }
+  50%      { filter: drop-shadow(0 0 22px rgba(0,234,255,.75)); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SETUP SCREEN ══════════ -->
+<div id="setupScreen">
+  <div class="setup-inner">
+
+    <div class="splash-logo">
+      <div class="splash-hex">
+        <svg viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="shG" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0d3878"/>
+              <stop offset="100%" stop-color="#051225"/>
+            </linearGradient>
+            <linearGradient id="shS" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00eaff"/>
+              <stop offset="50%" stop-color="#0088cc"/>
+              <stop offset="100%" stop-color="#00c8f8"/>
+            </linearGradient>
+          </defs>
+          <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="url(#shG)" stroke="url(#shS)" stroke-width="2.5"/>
+          <polygon points="50,12 88,33 88,78 50,98 12,78 12,33" fill="none" stroke="rgba(0,200,248,0.15)" stroke-width="1"/>
+          <circle cx="50" cy="4"   r="2.5" fill="#00eaff" opacity=".8"/>
+          <circle cx="96" cy="28"  r="2.5" fill="#00eaff" opacity=".8"/>
+          <circle cx="96" cy="82"  r="2.5" fill="#00eaff" opacity=".8"/>
+          <circle cx="50" cy="106" r="2.5" fill="#00eaff" opacity=".8"/>
+          <circle cx="4"  cy="82"  r="2.5" fill="#00eaff" opacity=".8"/>
+          <circle cx="4"  cy="28"  r="2.5" fill="#00eaff" opacity=".8"/>
+        </svg>
+        <div class="mono">P<span>J</span></div>
+      </div>
+      <div class="splash-brand"><span class="pj">PJ</span><span class="sep">·</span>TECNOLOGIA</div>
+      <div class="splash-sub">e &nbsp; Sistemas</div>
+      <div class="splash-product">IPTV PRO</div>
+    </div>
+
+    <div class="setup-card">
+      <div class="scanline"></div>
+      <div class="card-title">Configurar Lista</div>
+
+      <div class="field-label">URL da Lista M3U / M3U+</div>
+      <input class="field-input" id="m3uUrl" type="url"
+        placeholder="http://servidor.com/get.php?username=...&type=m3u_plus">
+
+      <div class="field-label">Nome do Servidor (opcional)</div>
+      <input class="field-input" id="serverName" type="text" placeholder="Meu Servidor IPTV">
+
+      <button class="load-btn" id="loadBtn" onclick="loadM3U()">▶ &nbsp; Carregar Lista</button>
+      <button class="demo-btn" onclick="loadDemo()">Demonstração (canais de exemplo)</button>
+
+      <div class="setup-error" id="setupError"></div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-txt" id="progressTxt">Conectando...</div>
+      </div>
+
+      <div class="setup-note">
+        🔒 <strong>Privacidade:</strong> Sua URL fica apenas no seu dispositivo — nunca é enviada a terceiros.<br>
+        📡 Formatos suportados: M3U, M3U+, HLS (m3u8), MPEG-TS.<br>
+        ⚠️ Se ocorrer erro de CORS, use um proxy local.
+      </div>
+    </div>
+
+  </div><!-- /setup-inner -->
+
+  <!-- Banner instalar PWA -->
+  <div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;
+    background:linear-gradient(135deg,#0a1f3d,#050d1a);
+    border-top:1px solid rgba(0,200,248,.25);
+    padding:14px 16px 18px;gap:12px;align-items:center;
+    box-shadow:0 -8px 32px rgba(0,0,0,.6);flex-wrap:wrap;">
+
+    <!-- linha principal -->
+    <div style="display:flex;align-items:center;gap:12px;width:100%;">
+      <div style="width:38px;height:42px;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 100 110" fill="none" style="position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 8px rgba(0,200,248,.5))">
+          <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="#0d3878" stroke="#00eaff" stroke-width="3"/>
+        </svg>
+        <span style="font-family:Orbitron,sans-serif;font-size:.65rem;font-weight:900;color:#fff;position:relative;z-index:2;letter-spacing:-1px">P<span style="color:#00eaff">J</span></span>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:Orbitron,sans-serif;font-size:.62rem;font-weight:700;letter-spacing:2px;color:#fff;text-transform:uppercase">Instalar App</div>
+        <div style="font-family:Rajdhani,sans-serif;font-size:.78rem;color:rgba(200,216,240,.65);margin-top:1px">Adicione à sua tela inicial sem precisar da Play Store</div>
+      </div>
+      <button onclick="triggerInstall()" style="flex-shrink:0;padding:9px 16px;border-radius:8px;
+        background:linear-gradient(135deg,#0d3878,#0a5ab0);border:1px solid rgba(0,200,248,.35);
+        color:#fff;font-family:Orbitron,sans-serif;font-size:.58rem;font-weight:700;
+        letter-spacing:2px;text-transform:uppercase;cursor:pointer;white-space:nowrap;
+        box-shadow:0 4px 16px rgba(0,56,120,.5);">
+        ⬇ Instalar
+      </button>
+      <button onclick="hideInstallBanner()" style="flex-shrink:0;width:26px;height:26px;border-radius:6px;
+        background:transparent;border:1px solid rgba(0,200,248,.12);color:rgba(200,216,240,.4);
+        font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
+    </div>
+
+    <!-- fallback manual (oculto inicialmente) -->
+    <div id="installFallback" style="display:none;width:100%;background:rgba(0,200,248,.06);
+      border:1px solid rgba(0,200,248,.15);border-radius:8px;padding:10px 12px;
+      font-family:Rajdhani,sans-serif;font-size:.8rem;color:rgba(200,216,240,.8);line-height:1.7;">
+      <strong style="color:#00eaff;">Como instalar manualmente:</strong><br>
+      <strong>Android Chrome:</strong> Menu (⋮) → "Adicionar à tela inicial"<br>
+      <strong>iPhone Safari:</strong> Botão compartilhar (□↑) → "Adicionar à Tela Inicial"<br>
+      <em style="color:rgba(200,216,240,.45);font-size:.72rem;">⚠ Funciona apenas pelo Netlify — não por arquivo local</em>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ MAIN APP ══════════ -->
+<div id="mainUI">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-hex">
+        <svg viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="thG" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0d3878"/>
+              <stop offset="100%" stop-color="#051225"/>
+            </linearGradient>
+            <linearGradient id="thS" x1="0" y1="0" x2="100" y2="110" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00eaff"/>
+              <stop offset="100%" stop-color="#00c8f8"/>
+            </linearGradient>
+          </defs>
+          <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="url(#thG)" stroke="url(#thS)" stroke-width="3"/>
+        </svg>
+        <div class="tmono">P<span>J</span></div>
+      </div>
+      <div class="topbar-name">
+        <span class="pjtag">PJ Tecnologia</span>
+        <span class="apptag">IPTV PRO</span>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 3.5 3.5"/>
+      </svg>
+      <input type="text" placeholder="Buscar canal..." id="searchInput" oninput="applySearch(this.value)">
+    </div>
+
+    <div class="status-badge online" id="serverBadge"><span class="sdot"></span>ONLINE</div>
+    <span class="count-txt" id="chCountBadge">–</span>
+
+    <div class="topbar-actions">
+      <div class="icon-btn" id="installTopBtn" onclick="triggerInstall()" title="Instalar App" style="display:none;border-color:rgba(0,200,248,.35);color:var(--cyan);">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 3v10m-4-4 4 4 4-4M3 17h14"/>
+        </svg>
+      </div>
+      <div class="icon-btn" onclick="goSetup()" title="Trocar lista">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h5m7 0h-5m-2 12H4m7 0h5M2 10h16"/>
+        </svg>
+      </div>
+      <div class="icon-btn" onclick="toggleFullscreen()" title="Tela cheia">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 8V3h5M17 8V3h-5M3 12v5h5m9-5v5h-5"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- LEFT: channel list -->
+    <div class="left-panel">
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="ch-list" id="chList"></div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center-panel">
+      <!-- Player -->
+      <div class="player-wrap" id="playerContainer">
+        <video id="videoEl" preload="none"></video>
+
+        <div class="player-idle" id="playerIdle">
+          <div class="idle-hex">
+            <svg viewBox="0 0 100 110" fill="none">
+              <polygon points="50,4 96,28 96,82 50,106 4,82 4,28" fill="#0a1f3d" stroke="rgba(0,200,248,0.3)" stroke-width="2.5"/>
+            </svg>
+            <div class="imono">P<span>J</span></div>
+          </div>
+          <div class="idle-title" id="idleChName">Selecione um canal</div>
+          <div class="idle-status" id="idleStatus">Lista carregada com sucesso</div>
+          <div class="spinner" id="loadingSpinner"></div>
+        </div>
+
+        <div class="player-overlay">
+          <div class="player-controls">
+            <div class="progress-row">
+              <span class="time-lbl" id="curTime">AO VIVO</span>
+              <div class="prog-bar" id="progBar">
+                <div class="prog-fill" id="progFill"></div>
+              </div>
+              <span class="time-lbl" id="durTime">–</span>
+            </div>
+            <div class="ctrl-row">
+              <span class="ch-num" id="chNumBadge">–</span>
+              <button class="cbtn" onclick="prevCh()" title="Canal anterior">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 5v10l-5-5 5-5zm6 0l5 5-5 5V5z"/></svg>
+              </button>
+              <button class="cbtn big" id="playBtn" onclick="togglePlay()">
+                <svg id="playIcon" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4l12 6-12 6V4z"/></svg>
+              </button>
+              <button class="cbtn" onclick="nextCh()" title="Próximo canal">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 5v10l5-5-5-5zM2 5l5 5-5 5V5z"/></svg>
+              </button>
+              <div class="spacer"></div>
+              <div class="vol-wrap">
+                <svg viewBox="0 0 20 20" fill="currentColor" style="width:14px;height:14px;color:rgba(255,255,255,.6)">
+                  <path d="M10 3L6 7H2v6h4l4 4V3zm6 7a5.94 5.94 0 00-1.5-3.96L13 7.55A4 4 0 0114 10a4 4 0 01-1 2.45l1.5 1.51A5.94 5.94 0 0016 10z"/>
+                </svg>
+                <input class="vol-slider" type="range" min="0" max="1" step="0.05" value="1"
+                  oninput="setVolume(this.value)">
+              </div>
+              <span class="qual-badge" id="qualBadge">–</span>
+              <button class="cbtn" onclick="toggleFullscreen()" style="opacity:.7">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                  <path d="M3 8V3h5M17 8V3h-5M3 12v5h5m9-5v5h-5"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EPG -->
+      <div class="epg-strip" id="epgStrip">
+        <div class="epg-card">
+          <div class="epg-time">–</div>
+          <div class="epg-title">Selecione um canal</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-row" id="filterRow"></div>
+
+      <!-- Grid -->
+      <div class="ch-grid-wrap">
+        <div class="grid-header">
+          <div class="grid-title">Grade de Canais</div>
+          <div class="grid-line"></div>
+        </div>
+        <div class="ch-grid" id="chGrid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="right-header">
+        <div class="right-title">Informações</div>
+      </div>
+      <div class="right-content">
+        <div class="info-block">
+          <div class="info-label">Canal Ativo</div>
+          <div class="info-val" id="infoChName">–</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Qualidade</div>
+          <div class="info-val cyan" id="infoQual">–</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Categoria</div>
+          <div class="info-val" id="infoCat">–</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Total de Canais</div>
+          <div class="info-val accent" id="infoTotal">–</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Servidor</div>
+          <div class="info-val green" id="infoServer">–</div>
+        </div>
+        <div class="info-block">
+          <div class="info-label">Horário</div>
+          <div class="info-val cyan" id="infoClock">–</div>
+        </div>
+      </div>
+      <div class="panel-brand">
+        <div class="pb-divider"></div>
+        <div class="pb-name"><span class="pc">PJ</span> TECNOLOGIA<br>E SISTEMAS</div>
+        <div class="pb-tag">Inovação que conecta.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="sdot2 green" id="statusDot"></div>
+    <span id="statusTxt">Pronto</span>
+    <span class="sb-logo"><span>PJ</span> TECNOLOGIA</span>
+  </div>
+</div>
+
+<!-- Mobile channel button -->
+<button class="mobile-ch-btn" onclick="toggleMobilePanel()">
+  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="4" width="16" height="12" rx="2"/><path d="M8 8l2 2 2-2"/>
+  </svg>
+</button>
+
+<script>
+var allChannels = [];
+var filteredChannels = [];
+var activeIdx = -1;
+var activeFilter = 'Todos';
+var hls = null;
+var videoEl = document.getElementById('videoEl');
+
+// ── CLOCK ──
+function tick() {
+  var n = new Date();
+  var t = pad2(n.getHours()) + ':' + pad2(n.getMinutes()) + ':' + pad2(n.getSeconds());
+  var el = document.getElementById('infoClock');
+  if (el) el.textContent = t;
+}
+setInterval(tick, 1000); tick();
+function pad2(n){ return n.toString().padStart(2,'0'); }
+
+// ── SETUP ──
+function showError(msg) {
+  var el = document.getElementById('setupError');
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideError() { document.getElementById('setupError').style.display = 'none'; }
+function setProgress(pct, txt) {
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressTxt').textContent = txt;
+}
+
+// ── PROXY CHAIN ──
+// Estratégias em ordem: direto → 4 proxies públicos → erro final
+var PROXIES = [
+  { label: 'Direto',         fn: function(u){ return u; } },
+  { label: 'corsproxy.io',   fn: function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
+  { label: 'allorigins',     fn: function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); } },
+  { label: 'thingproxy',     fn: function(u){ return 'https://thingproxy.freeboard.io/fetch/' + u; } },
+  { label: 'codetabs',       fn: function(u){ return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } },
+];
+
+async function tryFetch(proxyUrl, timeout) {
+  var ctrl = new AbortController();
+  var timer = setTimeout(function(){ ctrl.abort(); }, timeout || 12000);
+  try {
+    var resp = await fetch(proxyUrl, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    var text = await resp.text();
+    if (!text || text.length < 20) throw new Error('Resposta vazia');
+    return text;
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function loadM3U() {
+  hideError();
+  var url = document.getElementById('m3uUrl').value.trim();
+  if (!url) { showError('Por favor insira a URL da lista M3U.'); return; }
+  if (!url.startsWith('http')) { showError('URL inválida. Deve começar com http:// ou https://'); return; }
+
+  var btn = document.getElementById('loadBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="btn-spinner"></span> Conectando...';
+
+  var lastError = '';
+
+  for (var i = 0; i < PROXIES.length; i++) {
+    var p = PROXIES[i];
+    var pct = 10 + (i * 16);
+    setProgress(pct, (i === 0 ? '🔗 Tentando conexão direta...' : '🔄 Tentando via ' + p.label + ' (' + (i) + '/' + (PROXIES.length-1) + ')...'));
+
+    try {
+      var built = p.fn(url);
+      var text = await tryFetch(built, i === 0 ? 8000 : 14000);
+
+      // Valida se parece M3U antes de processar
+      if (text.indexOf('#EXTM3U') < 0 && text.indexOf('#EXTINF') < 0) {
+        throw new Error('Conteúdo não é M3U válido');
+      }
+
+      setProgress(90, '✅ Conectado via ' + p.label + ' — processando...');
+      parseM3U(text, p.label);
+      return; // sucesso — sai do loop
+    } catch(e) {
+      lastError = e.message;
+      // continua para próximo proxy
+    }
+  }
+
+  // Todos falharam
+  btn.disabled = false;
+  btn.innerHTML = '▶ &nbsp; Carregar Lista';
+  document.getElementById('progressWrap').style.display = 'none';
+  showError('❌ Não foi possível carregar a lista após ' + PROXIES.length + ' tentativas. Verifique a URL ou tente pelo app desktop. Último erro: ' + lastError);
+}
+
+function loadDemo() {
+  var demoChannels = [
+    { name:'TV Brasil', group:'Nacionais', url:'https://d3unb89dy3gm5h.cloudfront.net/out/v1/24d0f7d36fbe4bd7b3e9b1f4e5680df4/index.m3u8', logo:'' },
+    { name:'GloboNews HD', group:'Nacionais', url:'', logo:'' },
+    { name:'CNN Brasil', group:'Noticias', url:'', logo:'' },
+    { name:'Record News', group:'Noticias', url:'', logo:'' },
+    { name:'Cultura FM', group:'Música', url:'', logo:'' },
+    { name:'Band Sports', group:'Esportes', url:'', logo:'' },
+    { name:'ESPN Brasil', group:'Esportes', url:'', logo:'' },
+    { name:'Telecine Premium', group:'Filmes', url:'', logo:'' },
+    { name:'HBO Brasil', group:'Filmes', url:'', logo:'' },
+    { name:'Cartoon Network', group:'Infantil', url:'', logo:'' },
+    { name:'Disney Channel', group:'Infantil', url:'', logo:'' },
+    { name:'National Geo', group:'Documentários', url:'', logo:'' },
+    { name:'Discovery Channel', group:'Documentários', url:'', logo:'' },
+    { name:'Comedy Central', group:'Entretenimento', url:'', logo:'' },
+    { name:'Multishow', group:'Entretenimento', url:'', logo:'' },
+  ];
+  allChannels = demoChannels.map(function(c,i){ return Object.assign({},c,{idx:i,num:i+1}); });
+  var sn = document.getElementById('serverName').value.trim() || 'Demo PJ IPTV';
+  initUI(sn);
+}
+
+function parseM3U(text, proxyLabel) {
+  var lines = text.split('\n');
+  // Busca #EXTM3U em qualquer linha das primeiras 5 (alguns proxies adicionam header)
+  var hasHeader = false;
+  for (var h = 0; h < Math.min(5, lines.length); h++) {
+    if (lines[h].indexOf('#EXTM3U') >= 0) { hasHeader = true; break; }
+  }
+  if (!hasHeader) { showError('Arquivo não é um M3U válido.'); return; }
+
+  var channels = [];
+  var cur = null;
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (line.startsWith('#EXTINF')) {
+      cur = { name: '', group: 'Geral', logo: '', url: '', idx: channels.length, num: channels.length+1 };
+      var nameMatch = line.match(/,(.+)$/);
+      if (nameMatch) cur.name = nameMatch[1].trim();
+      var groupMatch = line.match(/group-title="([^"]*)"/);
+      if (groupMatch) cur.group = groupMatch[1] || 'Geral';
+      var logoMatch = line.match(/tvg-logo="([^"]*)"/);
+      if (logoMatch) cur.logo = logoMatch[1];
+    } else if (cur && line && !line.startsWith('#')) {
+      cur.url = line;
+      channels.push(cur);
+      cur = null;
+    }
+  }
+  if (channels.length === 0) { showError('Nenhum canal encontrado na lista.'); return; }
+  allChannels = channels;
+  var sn = document.getElementById('serverName').value.trim() || 'Servidor IPTV';
+  var via = proxyLabel && proxyLabel !== 'Direto' ? ' (via ' + proxyLabel + ')' : '';
+  setProgress(100, '✅ ' + channels.length + ' canais carregados' + via + '!');
+  setTimeout(function(){ initUI(sn); }, 600);
+}
+
+function initUI(serverName) {
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('mainUI').style.display = 'flex';
+  document.getElementById('chCountBadge').textContent = allChannels.length + ' canais';
+  document.getElementById('infoTotal').textContent = allChannels.length;
+  document.getElementById('infoServer').textContent = serverName;
+
+  buildCatTabs();
+  applyFilter('Todos');
+  buildFilterChips();
+}
+
+function goSetup() {
+  document.getElementById('mainUI').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('loadBtn').disabled = false;
+  document.getElementById('loadBtn').textContent = '▶  Carregar Lista';
+  if (hls) { hls.destroy(); hls = null; }
+  videoEl.pause();
+}
+
+// ── CATEGORIES ──
+function getCategories() {
+  var cats = ['Todos'];
+  var seen = {};
+  allChannels.forEach(function(c){ if (!seen[c.group]){ seen[c.group]=1; cats.push(c.group); } });
+  return cats;
+}
+
+function buildCatTabs() {
+  var cats = getCategories();
+  var tabEl = document.getElementById('catTabs');
+  tabEl.innerHTML = '';
+  cats.forEach(function(cat){
+    var t = document.createElement('div');
+    t.className = 'ctab' + (cat === 'Todos' ? ' active' : '');
+    t.textContent = cat;
+    t.onclick = function(){ applyFilter(cat); };
+    tabEl.appendChild(t);
+  });
+}
+
+function applyFilter(cat) {
+  activeFilter = cat;
+  document.querySelectorAll('.ctab').forEach(function(t){
+    t.classList.toggle('active', t.textContent === cat);
+  });
+  filteredChannels = cat === 'Todos' ? allChannels.slice() : allChannels.filter(function(c){ return c.group === cat; });
+  renderChannelList();
+  renderChannelGrid();
+}
+
+// ── SEARCH ──
+function applySearch(q) {
+  var lq = q.toLowerCase();
+  filteredChannels = (activeFilter === 'Todos' ? allChannels : allChannels.filter(function(c){ return c.group === activeFilter; }))
+    .filter(function(c){ return c.name.toLowerCase().indexOf(lq) >= 0; });
+  renderChannelList();
+  renderChannelGrid();
+}
+
+// ── FILTER CHIPS ──
+function buildFilterChips() {
+  var cats = getCategories();
+  var row = document.getElementById('filterRow');
+  row.innerHTML = '';
+  cats.slice(0,12).forEach(function(cat){
+    var ch = document.createElement('div');
+    ch.className = 'fchip' + (cat === 'Todos' ? ' active' : '');
+    ch.textContent = cat;
+    ch.onclick = function(){
+      document.querySelectorAll('.fchip').forEach(function(x){ x.classList.remove('active'); });
+      ch.classList.add('active');
+      applyFilter(cat);
+    };
+    row.appendChild(ch);
+  });
+}
+
+// ── CHANNEL LIST ──
+function renderChannelList() {
+  var list = document.getElementById('chList');
+  list.innerHTML = '';
+  if (filteredChannels.length === 0) {
+    list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 4h16v2H2V4zm0 5h16v2H2V9zm0 5h10v2H2v-2z"/></svg><p>Nenhum canal</p></div>';
+    return;
+  }
+  filteredChannels.slice(0, 200).forEach(function(ch){
+    var item = document.createElement('div');
+    item.className = 'ch-item' + (ch.idx === activeIdx ? ' active' : '');
+    item.id = 'chi-' + ch.idx;
+    var logoHtml = ch.logo
+      ? '<div class="ch-logo"><img src="'+esc(ch.logo)+'" onerror="this.parentNode.innerHTML=\''+abbr(ch.name)+'\'"/></div>'
+      : '<div class="ch-logo" style="background:'+colorFor(ch.name)+'20;color:'+colorFor(ch.name)+'">'+abbr(ch.name)+'</div>';
+    item.innerHTML = logoHtml +
+      '<div class="ch-info"><div class="ch-name">'+esc(ch.name)+'</div><div class="ch-cat">'+esc(ch.group)+'</div></div>' +
+      '<div class="live-dot"></div>';
+    item.onclick = function(){ playChannel(ch.idx); };
+    list.appendChild(item);
+  });
+}
+
+// ── CHANNEL GRID ──
+function renderChannelGrid() {
+  var grid = document.getElementById('chGrid');
+  grid.innerHTML = '';
+  filteredChannels.slice(0, 100).forEach(function(ch){
+    var card = document.createElement('div');
+    card.className = 'grid-card' + (ch.idx === activeIdx ? ' active' : '');
+    var logoHtml = ch.logo
+      ? '<div class="grid-logo"><img src="'+esc(ch.logo)+'" onerror="this.parentNode.innerHTML=\''+abbr(ch.name)+'\'"/></div>'
+      : '<div class="grid-logo" style="background:'+colorFor(ch.name)+'20;color:'+colorFor(ch.name)+'">'+abbr(ch.name)+'</div>';
+    card.innerHTML = logoHtml + '<div class="grid-name">'+esc(ch.name)+'</div>';
+    card.onclick = function(){ playChannel(ch.idx); };
+    grid.appendChild(card);
+  });
+}
+
+// ── PLAY ──
+function playChannel(idx) {
+  var ch = allChannels[idx];
+  if (!ch) return;
+  activeIdx = idx;
+
+  // Update active state
+  document.querySelectorAll('.ch-item').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.grid-card').forEach(function(el){ el.classList.remove('active'); });
+  var li = document.getElementById('chi-' + idx);
+  if (li) { li.classList.add('active'); li.scrollIntoView({block:'nearest'}); }
+
+  // Update info
+  document.getElementById('chNumBadge').textContent = 'CH ' + ch.num;
+  document.getElementById('qualBadge').textContent = guessQuality(ch);
+  document.getElementById('infoChName').textContent = ch.name;
+  document.getElementById('infoQual').textContent = guessQuality(ch);
+  document.getElementById('infoCat').textContent = ch.group;
+  document.getElementById('idleChName').textContent = ch.name;
+  document.getElementById('idleStatus').textContent = 'Carregando...';
+  document.getElementById('loadingSpinner').style.display = 'block';
+  document.getElementById('playerIdle').style.display = 'flex';
+  setStatus('yellow', 'Carregando: ' + ch.name);
+
+  if (hls) { hls.destroy(); hls = null; }
+  videoEl.pause();
+
+  if (!ch.url) {
+    document.getElementById('idleStatus').textContent = 'URL não disponível (modo demo)';
+    document.getElementById('loadingSpinner').style.display = 'none';
+    setStatus('red', 'Sem URL: ' + ch.name);
+    return;
+  }
+
+  var url = ch.url;
+  if (Hls.isSupported() && isHLS(url)) {
+    hls = new Hls({ enableWorker:true, lowLatencyMode:true, backBufferLength:30 });
+    hls.loadSource(url);
+    hls.attachMedia(videoEl);
+    hls.on(Hls.Events.MANIFEST_PARSED, function(){ videoEl.play(); onPlaying(ch); });
+    hls.on(Hls.Events.ERROR, function(e, d){
+      if (d.fatal) {
+        setStatus('red', 'Erro: ' + ch.name);
+        document.getElementById('idleStatus').textContent = 'Erro ao carregar stream';
+        document.getElementById('loadingSpinner').style.display = 'none';
+      }
+    });
+  } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+    videoEl.src = url; videoEl.play(); onPlaying(ch);
+  } else {
+    videoEl.src = url;
+    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(e){
+      setStatus('red', 'Erro: ' + e.message);
+      document.getElementById('idleStatus').textContent = 'Erro: ' + e.message;
+      document.getElementById('loadingSpinner').style.display = 'none';
+    });
+  }
+}
+
+function isHLS(url) {
+  return url.indexOf('.m3u8') >= 0 || url.indexOf('mpegts') >= 0 || url.indexOf('output=hls') >= 0 || url.indexOf('type=m3u8') >= 0;
+}
+
+function onPlaying(ch) {
+  document.getElementById('playerIdle').style.display = 'none';
+  document.getElementById('loadingSpinner').style.display = 'none';
+  setStatus('green', 'Ao vivo: ' + ch.name);
+  updateEPG(ch);
+}
+
+function guessQuality(ch) {
+  var n = ch.name.toUpperCase();
+  if (n.indexOf('4K') >= 0 || n.indexOf('UHD') >= 0) return '4K';
+  if (n.indexOf('FHD') >= 0) return 'FHD';
+  if (n.indexOf('HD') >= 0) return 'HD';
+  if (n.indexOf('SD') >= 0) return 'SD';
+  return 'HD';
+}
+
+// ── CONTROLS ──
+function togglePlay() {
+  if (activeIdx < 0) return;
+  if (videoEl.paused) {
+    videoEl.play();
+    document.getElementById('playIcon').innerHTML = '<path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/>';
+  } else {
+    videoEl.pause();
+    document.getElementById('playIcon').innerHTML = '<path d="M5 4l12 6-12 6V4z"/>';
+  }
+}
+function prevCh() {
+  var cur = filteredChannels.findIndex(function(c){ return c.idx === activeIdx; });
+  if (cur > 0) playChannel(filteredChannels[cur-1].idx);
+  else if (allChannels.length > 0) playChannel(allChannels[allChannels.length-1].idx);
+}
+function nextCh() {
+  var cur = filteredChannels.findIndex(function(c){ return c.idx === activeIdx; });
+  if (cur >= 0 && cur < filteredChannels.length-1) playChannel(filteredChannels[cur+1].idx);
+  else if (allChannels.length > 0) playChannel(allChannels[0].idx);
+}
+function setVolume(v) { videoEl.volume = parseFloat(v); }
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.getElementById('playerContainer').requestFullscreen();
+  else document.exitFullscreen();
+}
+function toggleMobilePanel() {
+  var lp = document.querySelector('.left-panel');
+  lp.style.display = lp.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Progress
+videoEl.addEventListener('timeupdate', function(){
+  if (!videoEl.duration || isNaN(videoEl.duration)){
+    document.getElementById('curTime').textContent = 'AO VIVO';
+    document.getElementById('durTime').textContent = '–';
+    document.getElementById('progFill').style.width = '0%';
+    return;
+  }
+  var pct = (videoEl.currentTime / videoEl.duration) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('curTime').textContent = fmtTime(videoEl.currentTime);
+  document.getElementById('durTime').textContent = fmtTime(videoEl.duration);
+});
+document.getElementById('progBar').addEventListener('click', function(e){
+  if (!videoEl.duration || isNaN(videoEl.duration)) return;
+  var r = this.getBoundingClientRect();
+  videoEl.currentTime = ((e.clientX - r.left) / r.width) * videoEl.duration;
+});
+function fmtTime(s) {
+  var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=Math.floor(s%60);
+  if(h>0) return h+':'+pad2(m)+':'+pad2(sec);
+  return pad2(m)+':'+pad2(sec);
+}
+
+// EPG
+function updateEPG(ch) {
+  var strip = document.getElementById('epgStrip');
+  strip.innerHTML = '';
+  [{ time:'Anterior', title:'Programa Anterior' },
+   { time:'Agora', title:ch.name + ' – Ao Vivo', now:true },
+   { time:'Próximo', title:'Próximo Programa' }].forEach(function(ep){
+    var d = document.createElement('div');
+    d.className = 'epg-card';
+    if(ep.now) d.style.cssText='border-color:rgba(0,200,248,.3);background:rgba(0,200,248,.05)';
+    d.innerHTML='<div class="epg-time">'+ep.time+(ep.now?' · <span style="color:var(--cyan)">AGORA</span>':'')+'</div>'+
+      '<div class="epg-title">'+esc(ep.title)+'</div>';
+    strip.appendChild(d);
+  });
+}
+
+// Status
+function setStatus(type, msg) {
+  var dot = document.getElementById('statusDot');
+  dot.className = 'sdot2 ' + type;
+  document.getElementById('statusTxt').textContent = msg;
+}
+
+// Helpers
+var COLORS = ['#00c8f8','#0d3878','#00eaff','#f0a500','#22c55e','#8b5cf6','#ec4899','#f97316'];
+function colorFor(name){ var h=0; for(var i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))&0xffff; return COLORS[h%COLORS.length]; }
+function abbr(name){ return name.replace(/[^A-Z0-9]/gi,'').substring(0,3).toUpperCase()||'?'; }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── BOTÃO INSTALAR PWA ──
+// O SW blob não funciona em browsers — PWA install depende só do manifest + HTTPS
+// Quando rodando pelo Netlify/HTTPS, o browser dispara beforeinstallprompt automaticamente
+var _installPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _installPrompt = e;
+  showInstallBanner();
+});
+
+window.addEventListener('appinstalled', function() {
+  hideInstallBanner();
+  _installPrompt = null;
+});
+
+function showInstallBanner() {
+  var banner = document.getElementById('installBanner');
+  if (banner) { banner.style.display = 'flex'; }
+  var tb = document.getElementById('installTopBtn');
+  if (tb) tb.style.display = 'flex';
+}
+
+function hideInstallBanner() {
+  var banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'none';
+  var tb = document.getElementById('installTopBtn');
+  if (tb) tb.style.display = 'none';
+}
+
+function triggerInstall() {
+  if (!_installPrompt) {
+    // Fallback: instrução manual
+    document.getElementById('installFallback').style.display = 'block';
+    return;
+  }
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then(function(r) {
+    if (r.outcome === 'accepted') hideInstallBanner();
+    _installPrompt = null;
+  });
+}
+</script>
+</body>
+</html>
