@@ -1698,72 +1698,86 @@ function playChannel(idx) {
   }
 
   if (isSafari() || (videoEl.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported())) {
-    // Safari / iOS — usa HLS nativo (suporta streams com ou sem .m3u8)
-    videoEl.src = url;
-    videoEl.load();
-    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(e){
-      videoEl.muted = true;
-      videoEl.play().then(function(){ videoEl.muted = false; onPlaying(ch); }).catch(function(){ onStreamError('Autoplay bloqueado — clique em ▶'); });
-    });
-  } else if (Hls.isSupported() && isHLS(url)) {
-    hls = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-      backBufferLength: 30,
-      maxBufferLength: 30,
-      maxMaxBufferLength: 60,
-      fragLoadingTimeOut: 20000,
-      manifestLoadingTimeOut: 20000,
-      levelLoadingTimeOut: 20000,
-      xhrSetup: function(xhr) {
-        xhr.withCredentials = false;
-      }
-    });
-    hls.loadSource(url);
-    hls.attachMedia(videoEl);
-    hls.on(Hls.Events.MANIFEST_PARSED, function(){
-      videoEl.play().then(function(){ onPlaying(ch); }).catch(function(err){
-        // autoplay bloqueado — tenta muted
-        videoEl.muted = true;
-        videoEl.play().then(function(){ videoEl.muted = false; onPlaying(ch); }).catch(function(){ onStreamError('Autoplay bloqueado — clique em ▶'); });
-      });
-    });
-    hls.on(Hls.Events.ERROR, function(e, d){
-      if (d.fatal) {
-        if (d.type === Hls.ErrorTypes.NETWORK_ERROR) {
-          // tenta recuperar automaticamente uma vez
-          try { hls.startLoad(); } catch(_) { onStreamError('Erro de rede: ' + ch.name); }
-        } else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) {
-          try { hls.recoverMediaError(); } catch(_) { onStreamError('Erro de mídia: ' + ch.name); }
-        } else {
-          onStreamError('Stream indisponível');
-        }
-      }
-    });
+    // Safari / iOS — usa HLS nativo
+    tryPlayNative(url, ch);
+  } else if (Hls.isSupported()) {
+    // Chrome/Firefox — tenta HLS.js com estratégia em cascata
+    tryPlayHls(url, ch, 0);
   } else {
-    // Fallback para outros formatos (mp4, ts, etc.)
-    videoEl.src = url;
-    videoEl.load();
-    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(e){
-      onStreamError('Formato não suportado: ' + e.message);
-    });
+    tryPlayNative(url, ch);
   }
 }
 
-function isHLS(url) {
-  // Detecta HLS por extensão ou parâmetros conhecidos
-  if (url.indexOf('.m3u8') >= 0) return true;
-  if (url.indexOf('output=hls') >= 0 || url.indexOf('type=m3u8') >= 0) return true;
-  // URLs do tipo Xtream Codes sem extensão (ex: host:port/live/user/pass/ID)
-  // → trata como HLS pois o HLS.js lida melhor do que o video nativo
-  var extMatch = url.match(/\.([a-zA-Z0-9]{2,5})(\?.*)?$/);
-  if (!extMatch) return true; // sem extensão: assume HLS
-  var ext = extMatch[1].toLowerCase();
-  // Extensões de vídeo conhecidas que NÃO são HLS
-  var nonHls = ['mp4','mkv','avi','flv','webm','ts','mpg','mpeg','mov','wmv'];
-  if (nonHls.indexOf(ext) >= 0) return false;
-  return true; // qualquer outra extensão ou desconhecida: tenta HLS
+// Estratégias de URL para Xtream/HLS
+function getUrlStrategies(url) {
+  var strategies = [url];
+  // Se não tem extensão conhecida, tenta versões com manifest explícito
+  if (url.indexOf('.m3u8') < 0 && url.indexOf('.mp4') < 0 && url.indexOf('.ts') < 0) {
+    strategies.push(url + '/index.m3u8');
+    strategies.push(url + '.m3u8');
+  }
+  return strategies;
 }
+
+function tryPlayHls(url, ch, attempt) {
+  var strategies = getUrlStrategies(url);
+  if (attempt >= strategies.length) {
+    // HLS.js esgotou — tenta nativo como último recurso
+    tryPlayNative(url, ch);
+    return;
+  }
+  var tryUrl = strategies[attempt];
+
+  if (hls) { hls.destroy(); hls = null; }
+
+  hls = new Hls({
+    enableWorker: true,
+    lowLatencyMode: true,
+    backBufferLength: 30,
+    maxBufferLength: 30,
+    maxMaxBufferLength: 60,
+    fragLoadingTimeOut: 20000,
+    manifestLoadingTimeOut: 15000,
+    levelLoadingTimeOut: 15000,
+    xhrSetup: function(xhr) { xhr.withCredentials = false; }
+  });
+  hls.loadSource(tryUrl);
+  hls.attachMedia(videoEl);
+
+  var resolved = false;
+  hls.on(Hls.Events.MANIFEST_PARSED, function(){
+    resolved = true;
+    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(){
+      videoEl.muted = true;
+      videoEl.play().then(function(){ videoEl.muted = false; onPlaying(ch); })
+               .catch(function(){ onStreamError('Autoplay bloqueado — clique em ▶'); });
+    });
+  });
+  hls.on(Hls.Events.ERROR, function(e, d){
+    if (resolved) return;
+    if (d.fatal) {
+      if (d.type === Hls.ErrorTypes.NETWORK_ERROR && attempt === 0) {
+        // Erro de rede na URL original: tenta próxima estratégia
+        tryPlayHls(url, ch, attempt + 1);
+      } else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) {
+        try { hls.recoverMediaError(); } catch(_) { tryPlayHls(url, ch, attempt + 1); }
+      } else {
+        tryPlayHls(url, ch, attempt + 1);
+      }
+    }
+  });
+}
+
+function tryPlayNative(url, ch) {
+  videoEl.src = url;
+  videoEl.load();
+  videoEl.play().then(function(){ onPlaying(ch); }).catch(function(){
+    videoEl.muted = true;
+    videoEl.play().then(function(){ videoEl.muted = false; onPlaying(ch); })
+             .catch(function(){ onStreamError('Stream indisponível ou bloqueado'); });
+  });
+}
+
 
 function onPlaying(ch) {
   document.getElementById('playerIdle').style.display = 'none';
