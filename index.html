@@ -471,7 +471,7 @@ body::before {
   transition: border-color .2s;
 }
 .search-bar:focus-within { border-color: rgba(0,200,248,.4); }
-.search-bar svg { color: var(--muted); flex-shrink: 0; }
+.search-bar svg { color: var(--muted); flex-shrink: 0; width: 14px; height: 14px; min-width: 14px; min-height: 14px; }
 .search-bar input {
   background: none;
   border: none;
@@ -544,9 +544,10 @@ body::before {
 }
 @media (max-width: 560px) {
   .left-panel { display: none; }
-  .mobile-ch-btn {
-    display: flex !important;
-  }
+  .mobile-ch-btn { display: flex !important; }
+  .search-bar { max-width: 140px; min-width: 0; }
+  .count-txt { display: none; }
+  .status-badge { font-size: .52rem; padding: 3px 6px; }
 }
 
 .cat-tabs {
@@ -1647,6 +1648,12 @@ function renderChannelGrid() {
   });
 }
 
+// Detecta Safari/iOS (não suporta HLS.js com workers, usa HLS nativo)
+function isSafari() {
+  var ua = navigator.userAgent;
+  return /Safari/i.test(ua) && !/Chrome/i.test(ua) && !/Chromium/i.test(ua) && !/Android/i.test(ua);
+}
+
 // ── PLAY ──
 function playChannel(idx) {
   var ch = allChannels[idx];
@@ -1690,7 +1697,15 @@ function playChannel(idx) {
     document.getElementById('playerIdle').style.display = 'flex';
   }
 
-  if (Hls.isSupported() && isHLS(url)) {
+  if (isSafari() || (videoEl.canPlayType('application/vnd.apple.mpegurl') && !Hls.isSupported())) {
+    // Safari / iOS — usa HLS nativo (suporta streams com ou sem .m3u8)
+    videoEl.src = url;
+    videoEl.load();
+    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(e){
+      videoEl.muted = true;
+      videoEl.play().then(function(){ videoEl.muted = false; onPlaying(ch); }).catch(function(){ onStreamError('Autoplay bloqueado — clique em ▶'); });
+    });
+  } else if (Hls.isSupported() && isHLS(url)) {
     hls = new Hls({
       enableWorker: true,
       lowLatencyMode: true,
@@ -1725,11 +1740,6 @@ function playChannel(idx) {
         }
       }
     });
-  } else if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-    // Safari nativo
-    videoEl.src = url;
-    videoEl.load();
-    videoEl.play().then(function(){ onPlaying(ch); }).catch(function(e){ onStreamError('Erro Safari: ' + e.message); });
   } else {
     // Fallback para outros formatos (mp4, ts, etc.)
     videoEl.src = url;
