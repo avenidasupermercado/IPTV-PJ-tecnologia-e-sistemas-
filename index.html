@@ -1257,12 +1257,10 @@ video {
           <div class="idle-status" id="idleStatus">Lista carregada com sucesso</div>
           <div class="spinner" id="loadingSpinner"></div>
           <button id="retryBtn" onclick="retryChannel()" style="display:none;margin-top:12px;
-            padding:9px 22px;border-radius:8px;
-            background:linear-gradient(135deg,#0d3878,#0a5ab0);
-            border:1px solid rgba(0,200,248,.35);color:#fff;
-            font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;
-            letter-spacing:2px;text-transform:uppercase;cursor:pointer;
-            box-shadow:0 4px 16px rgba(0,56,120,.5);">↺ Tentar Novamente</button>
+            padding:9px 22px;border-radius:8px;background:linear-gradient(135deg,#0d3878,#0a5ab0);
+            border:1px solid rgba(0,200,248,.35);color:#fff;font-family:'Orbitron',sans-serif;
+            font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">
+            ↺ Tentar Novamente</button>
         </div>
 
         <div class="player-overlay">
@@ -1682,7 +1680,7 @@ function playChannel(idx) {
   document.getElementById('idleChName').textContent = ch.name;
   document.getElementById('idleStatus').textContent = 'Carregando...';
   document.getElementById('loadingSpinner').style.display = 'block';
-  document.getElementById('retryBtn').style.display = 'none';
+  var _rb = document.getElementById('retryBtn'); if (_rb) _rb.style.display = 'none';
   document.getElementById('playerIdle').style.display = 'flex';
   setStatus('yellow', 'Carregando: ' + ch.name);
 
@@ -1702,125 +1700,156 @@ function playChannel(idx) {
     setStatus('red', 'Erro: ' + ch.name);
     document.getElementById('idleStatus').textContent = msg || 'Erro ao carregar stream';
     document.getElementById('loadingSpinner').style.display = 'none';
-    document.getElementById('retryBtn').style.display = 'block';
+    var rb = document.getElementById('retryBtn');
+    if (rb) rb.style.display = 'block';
     document.getElementById('playerIdle').style.display = 'flex';
   }
 
-  // HLS.js tem prioridade máxima (Android Chrome, Firefox, Desktop Chrome)
-  // Só usa nativo em Safari/iOS onde HLS.js não é suportado
-  if (Hls.isSupported()) {
-    tryPlayHls(url, ch, 0);
-  } else if (isSafari() || videoEl.canPlayType('application/vnd.apple.mpegurl')) {
-    tryPlayNative(url, ch);
-  } else {
-    onStreamError('Navegador não suporta HLS. Use Chrome ou Safari.');
-  }
+  // Converte URL para formato compatível e inicia reprodução
+  var finalUrl = buildPlayableUrl(url);
+  startPlayer(finalUrl, ch);
 }
 
-// Estratégias de URL para Xtream/HLS
-function getUrlStrategies(url) {
-  var strategies = [url];
-  // Se não tem extensão conhecida, tenta versões com manifest explícito
-  if (url.indexOf('.m3u8') < 0 && url.indexOf('.mp4') < 0 && url.indexOf('.ts') < 0) {
-    strategies.push(url + '/index.m3u8');
-    strategies.push(url + '.m3u8');
+// ── Detecta tipo de URL e monta a versão reproduzível ──
+function buildPlayableUrl(url) {
+  // Xtream Codes: .../get.php?username=...&password=...
+  // Converte mpegts → ts (stream direto) e garante output correto
+  if (url.indexOf('get.php') >= 0) {
+    // Remove output=mpegts que o HLS.js não suporta
+    url = url.replace(/output=mpegts/g, 'output=ts');
+    // Se não tem output, adiciona ts
+    if (url.indexOf('output=') < 0) {
+      url += '&output=ts';
+    }
   }
-  return strategies;
+  // URLs Xtream de stream direto: /username/password/streamid
+  // → adiciona .m3u8 se não tem extensão
+  if (url.indexOf('.m3u8') < 0 && url.indexOf('.mp4') < 0 && url.indexOf('.ts') < 0 && url.indexOf('get.php') < 0) {
+    url = url + '.m3u8';
+  }
+  return url;
 }
+
+// ── Proxies HTTPS para contornar mixed-content (HTTP stream em página HTTPS) ──
+var STREAM_PROXIES = [
+  function(u) { return u; }, // direto (funciona se servidor tiver CORS ou página for HTTP)
+  function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+  function(u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+];
 
 var _playTimer = null;
+var _currentProxyIdx = 0;
 
-function tryPlayHls(url, ch, attempt) {
-  var strategies = getUrlStrategies(url);
-  if (attempt >= strategies.length) {
-    tryPlayNative(url, ch);
+function startPlayer(url, ch, proxyIdx) {
+  proxyIdx = proxyIdx || 0;
+  _currentProxyIdx = proxyIdx;
+
+  if (proxyIdx >= STREAM_PROXIES.length) {
+    onStreamError('Stream bloqueada (CORS/mixed-content). Servidor HTTP não é compatível com player HTTPS.');
     return;
   }
-  var tryUrl = strategies[attempt];
+
+  var tryUrl = STREAM_PROXIES[proxyIdx](url);
 
   if (hls) { hls.destroy(); hls = null; }
   if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
 
+  // Para .mp4 e streams não-HLS usa elemento nativo
+  if (url.indexOf('.mp4') >= 0) {
+    tryPlayNative(tryUrl, url, ch, proxyIdx);
+    return;
+  }
+
+  if (!Hls.isSupported()) {
+    // Safari/iOS: HLS nativo
+    tryPlayNative(tryUrl, url, ch, proxyIdx);
+    return;
+  }
+
+  // HLS.js para Chrome/Android/Firefox
   hls = new Hls({
     enableWorker: true,
     lowLatencyMode: true,
-    backBufferLength: 30,
-    maxBufferLength: 30,
-    maxMaxBufferLength: 60,
-    fragLoadingTimeOut: 10000,
-    manifestLoadingTimeOut: 10000,
-    levelLoadingTimeOut: 10000,
-    xhrSetup: function(xhr) { xhr.withCredentials = false; }
+    maxBufferLength: 20,
+    maxMaxBufferLength: 40,
+    fragLoadingTimeOut: 12000,
+    manifestLoadingTimeOut: 12000,
+    levelLoadingTimeOut: 12000,
+    xhrSetup: function(xhr) {
+      xhr.withCredentials = false;
+    }
   });
+
   hls.loadSource(tryUrl);
   hls.attachMedia(videoEl);
 
   var resolved = false;
 
-  // Timeout de segurança: 14s para não girar infinitamente
   _playTimer = setTimeout(function() {
     if (!resolved) {
       if (hls) { hls.destroy(); hls = null; }
-      onStreamError('Tempo esgotado — stream inacessível ou bloqueada por CORS.');
+      // Tenta próximo proxy
+      startPlayer(url, ch, proxyIdx + 1);
     }
-  }, 14000);
+  }, 13000);
 
-  hls.on(Hls.Events.MANIFEST_PARSED, function(){
+  hls.on(Hls.Events.MANIFEST_PARSED, function() {
     resolved = true;
     if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
-    // Garante muted = false antes de tudo
-    videoEl.muted = false;
-    videoEl.volume = videoEl.volume || 1;
-    videoEl.play().then(function(){
-      videoEl.muted = false; // dupla garantia
-      onPlaying(ch);
-    }).catch(function(){
-      // Autoplay bloqueado: toca mutado, restaura som logo após
-      videoEl.muted = true;
-      videoEl.play().then(function(){
-        // Restaura som imediatamente após iniciar
-        videoEl.muted = false;
-        onPlaying(ch);
-      }).catch(function(){
-        onStreamError('Autoplay bloqueado — clique em ▶ para iniciar');
-      });
-    });
+    doPlay(ch);
   });
 
-  hls.on(Hls.Events.ERROR, function(e, d){
+  hls.on(Hls.Events.ERROR, function(e, d) {
     if (resolved) return;
     if (d.fatal) {
+      if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
       if (d.type === Hls.ErrorTypes.NETWORK_ERROR) {
-        if (attempt + 1 < strategies.length) {
-          tryPlayHls(url, ch, attempt + 1);
-        } else {
-          if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
-          onStreamError('Erro de rede — stream offline ou bloqueada. Verifique a lista.');
-        }
+        // Tenta próximo proxy
+        startPlayer(url, ch, proxyIdx + 1);
       } else if (d.type === Hls.ErrorTypes.MEDIA_ERROR) {
-        try { hls.recoverMediaError(); } catch(_e) { tryPlayHls(url, ch, attempt + 1); }
+        try { hls.recoverMediaError(); } catch(_e) {
+          startPlayer(url, ch, proxyIdx + 1);
+        }
       } else {
-        tryPlayHls(url, ch, attempt + 1);
+        startPlayer(url, ch, proxyIdx + 1);
       }
     }
   });
 }
 
-function tryPlayNative(url, ch) {
+function tryPlayNative(tryUrl, originalUrl, ch, proxyIdx) {
   videoEl.muted = false;
-  videoEl.volume = videoEl.volume || 1;
-  videoEl.src = url;
+  videoEl.src = tryUrl;
   videoEl.load();
-  videoEl.play().then(function(){
+  videoEl.play().then(function() {
     videoEl.muted = false;
     onPlaying(ch);
-  }).catch(function(){
+  }).catch(function() {
+    // Autoplay bloqueado → tenta mutado
     videoEl.muted = true;
-    videoEl.play().then(function(){
+    videoEl.play().then(function() {
       videoEl.muted = false;
       onPlaying(ch);
-    }).catch(function(){
-      onStreamError('Stream indisponível ou bloqueada');
+    }).catch(function() {
+      // Falha total → próximo proxy
+      startPlayer(originalUrl, ch, (proxyIdx || 0) + 1);
+    });
+  });
+}
+
+function doPlay(ch) {
+  videoEl.muted = false;
+  videoEl.volume = 1;
+  videoEl.play().then(function() {
+    videoEl.muted = false;
+    onPlaying(ch);
+  }).catch(function() {
+    videoEl.muted = true;
+    videoEl.play().then(function() {
+      videoEl.muted = false;
+      onPlaying(ch);
+    }).catch(function() {
+      onStreamError('Autoplay bloqueado — toque em ▶ para iniciar');
     });
   });
 }
@@ -1965,7 +1994,7 @@ function hideInstallBanner() {
 }
 
 function retryChannel() {
-  if (activeIdx >= 0) { playChannel(activeIdx); }
+  if (activeIdx >= 0) playChannel(activeIdx);
 }
 
 function triggerInstall() {
